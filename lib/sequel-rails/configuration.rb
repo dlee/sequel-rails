@@ -1,15 +1,15 @@
 require 'active_support/core_ext/hash/except'
 require 'active_support/core_ext/class/attribute_accessors'
 
-module Rails
-  module Sequel
+module Sequel
+  module Rails
 
     mattr_accessor :configuration
 
     class Configuration
 
       def self.for(root, database_yml_hash)
-        Rails::Sequel.configuration ||= new(root, database_yml_hash)
+        Sequel::Rails.configuration ||= new(root, database_yml_hash)
       end
 
       attr_reader :root, :raw
@@ -37,12 +37,12 @@ module Rails
       def normalize_repository_config(hash)
         config = {}
         hash.each do |key, value|
-          config[key.to_s] = 
+          config[key.to_s] =
             if key.to_s == 'port'
               value.to_i
             elsif key.to_s == 'adapter' && value == 'sqlite3'
               'sqlite'
-            elsif key.to_s == 'database' && (hash['adapter'] == 'sqlite3' || 
+            elsif key.to_s == 'database' && (hash['adapter'] == 'sqlite3' ||
                                              hash['adapter'] == 'sqlite'  ||
                                              hash[:adapter]  == 'sqlite3' ||
                                              hash[:adapter]  == 'sqlite')
@@ -53,7 +53,7 @@ module Rails
               value
             end
         end
-        
+
         config
       end
 

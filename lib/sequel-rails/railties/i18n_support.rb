@@ -1,5 +1,5 @@
-module Rails
-  module Sequel
+module Sequel
+  module Rails
 
     module I18nSupport
       # Set the i18n scope to overwrite ActiveModel.

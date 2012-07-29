@@ -1,7 +1,8 @@
+
 require 'sequel-rails/railtie'
 
-module Rails
-  module Sequel
+module Sequel
+  module Rails
   end
 end
 

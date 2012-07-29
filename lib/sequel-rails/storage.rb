@@ -1,5 +1,5 @@
-module Rails
-  module Sequel
+module Sequel
+  module Rails
 
     def self.storage
       Storage
@@ -25,7 +25,7 @@ module Rails
       end
 
       def self.new(config)
-        config = Rails::Sequel.configuration.environments[config.to_s] unless config.kind_of?(Hash)
+        config = Sequel::Rails.configuration.environments[config.to_s] unless config.kind_of?(Hash)
 
         klass = lookup_class(config['adapter'])
         if klass.equal?(self)
@@ -39,7 +39,7 @@ module Rails
       private
 
         def with_local_repositories
-          Rails::Sequel.configuration.environments.each_value do |config|
+          Sequel::Rails.configuration.environments.each_value do |config|
             next if config['database'].blank?
             if config['host'].blank? || %w[ 127.0.0.1 localhost ].include?(config['host'])
               yield(config)

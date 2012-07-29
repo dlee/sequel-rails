@@ -1,7 +1,7 @@
 require 'active_support/core_ext/module/attr_internal'
 
-module Rails
-  module Sequel
+module Sequel
+  module Rails
     module Railties
 
       module ControllerRuntime
@@ -13,9 +13,9 @@ module Rails
         attr_internal :db_runtime
 
         def cleanup_view_runtime
-          db_rt_before_render = ::Rails::Sequel.reset_runtime
+          db_rt_before_render = ::Sequel::Rails.reset_runtime
           runtime = super
-          db_rt_after_render = ::Rails::Sequel.reset_runtime
+          db_rt_after_render = ::Sequel::Rails.reset_runtime
           self.db_runtime = db_rt_before_render + db_rt_after_render
           runtime - db_rt_after_render
         end

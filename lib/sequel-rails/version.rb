@@ -1,5 +1,5 @@
-module Rails
-  module Sequel
+module Sequel
+  module Rails
     VERSION = "0.3.4"
   end
 end

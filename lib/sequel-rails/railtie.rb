@@ -16,8 +16,8 @@ require 'sequel-rails/railties/log_subscriber'
 require 'sequel-rails/railties/i18n_support'
 
 
-module Rails
-  module Sequel
+module Sequel
+  module Rails
 
     class Railtie < Rails::Railtie
 
@@ -54,7 +54,7 @@ module Rails
       end
 
       initializer 'sequel.connect' do |app|
-        Rails::Sequel.setup(Rails.env)
+        Sequel::Rails.setup(Rails.env)
       end
 
       # Run setup code after_initialize to make sure all config/initializers
@@ -69,18 +69,18 @@ module Rails
 
       # Support overwriting crucial steps in subclasses
       def configure_sequel(app)
-        app.config.sequel = Rails::Sequel::Configuration.for(
+        app.config.sequel = Sequel::Rails::Configuration.for(
           Rails.root, app.config.database_configuration
         )
       end
 
       def setup_i18n_support(app)
-        ::Sequel::Model.send :include, Rails::Sequel::I18nSupport
+        ::Sequel::Model.send :include, Sequel::Rails::I18nSupport
       end
 
       def setup_controller_runtime(app)
         require 'sequel-rails/railties/controller_runtime'
-        ActionController::Base.send :include, Rails::Sequel::Railties::ControllerRuntime
+        ActionController::Base.send :include, Sequel::Rails::Railties::ControllerRuntime
       end
 
       def setup_logger(app, logger)

@@ -2,8 +2,8 @@ require 'sequel'
 
 # Implements Sequel-specific session store.
 
-module Rails
-  module Sequel
+module Sequel
+  module Rails
 
     class SessionStore < ActionDispatch::Session::AbstractStore
 
@@ -15,24 +15,24 @@ module Rails
         # property :updated_at, DateTime, :required => false, :index => true
 
         class << self
-          
+
           def auto_migrate!
             self.db.create_table :sessions do
               primary_key :id
-              column :session_id, String, 
-                     :null    => false, 
-                     :unique  => true, 
+              column :session_id, String,
+                     :null    => false,
+                     :unique  => true,
                      :index   => true
 
-              column :data, :text, 
-                     :null => false 
-                     
-              column :updated_at, DateTime, 
-                     :null => true, 
+              column :data, :text,
+                     :null => false
+
+              column :updated_at, DateTime,
+                     :null => true,
                      :index => true
             end
           end
-          
+
         end
 
         def self.name
@@ -72,7 +72,7 @@ module Rails
 
       def find_session(sid)
         klass = self.class.session_class
-        
+
         klass.where(:session_id => sid).first || klass.new(:session_id => sid)
       end
 
