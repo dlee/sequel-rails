@@ -11,9 +11,9 @@ require 'active_model/railtie'
 # In the future, this might become an optional require.
 require 'action_controller/railtie'
 
-require 'sequel-rails/setup'
-require 'sequel-rails/railties/log_subscriber'
-require 'sequel-rails/railties/i18n_support'
+require 'sequel/rails/setup'
+require 'sequel/rails/railties/log_subscriber'
+require 'sequel/rails/railties/i18n_support'
 
 
 module Sequel
