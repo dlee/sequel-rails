@@ -133,8 +133,8 @@ namespace :db do
   end
 
   desc 'Create the database, load the schema, and initialize with the seed data'
-  task :setup => [ 'db:create', 'db:migrate', 'db:seed' ]
-
+  task :setup => [ 'db:create', 'db:schema:load', 'db:seed' ]
+  
   desc 'Drops and recreates the database from db/schema.rb for the current environment and loads the seeds.'
   task :reset => [ 'db:drop', 'db:setup' ]
 
