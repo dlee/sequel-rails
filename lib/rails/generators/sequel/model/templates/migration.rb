@@ -1,6 +1,5 @@
-Sequel.migration do 
+Sequel.migration do
   change do
-
     create_table :<%= table_name %> do
       primary_key :id
       <%- if options[:timestamps] -%>
@@ -11,6 +10,5 @@ Sequel.migration do
       <%= attribute.type_class %> :<%= attribute.name %>
       <%- end -%>
     end
-
   end
 end

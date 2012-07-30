@@ -1,10 +1,13 @@
+
 # TODO: DRY these up
+# TODO: Add task to create sessions table
+
 namespace :db do
   namespace :schema do
     desc "Create a db/schema.rb file that can be portably used against any DB supported by Sequel"
     task :dump => :environment do
       Sequel.extension :schema_dumper
-      db = Sequel.connect(::Sequel::Rails.configuration.environment_for(Rails.env))
+      db = Sequel::Rails.db
       File.open(ENV['SCHEMA'] || "#{Rails.root}/db/schema.rb", "w") do |file|
         file.write db.dump_schema_migration(same_db: true)
       end
@@ -13,7 +16,7 @@ namespace :db do
 
     desc "Load a schema.rb file into the database"
     task :load => :environment do
-      require 'sequel-rails/storage'
+      require 'sequel/rails/storage'
       Sequel::Rails::Storage.new(Rails.env).create
 
       file = ENV['SCHEMA'] || "#{Rails.root}/db/schema.rb"
@@ -28,7 +31,7 @@ namespace :db do
   namespace :create do
     desc 'Create all the local databases defined in config/database.yml'
     task :all => :environment do
-      require 'sequel-rails/storage'
+      require 'sequel/rails/storage'
       Sequel::Rails::Storage.create_all
     end
   end
@@ -37,7 +40,7 @@ namespace :db do
   task :create, [:env] => :environment do |t, args|
     args.with_defaults(:env => Rails.env)
 
-    require 'sequel-rails/storage'
+    require 'sequel/rails/storage'
     Sequel::Rails::Storage.new(args.env).create
 
     if Rails.env.development? && Rails.configuration.database_configuration['test']
@@ -48,7 +51,7 @@ namespace :db do
   namespace :drop do
     desc 'Drops all the local databases defined in config/database.yml'
     task :all => :environment do
-      require 'sequel-rails/storage'
+      require 'sequel/rails/storage'
       Sequel::Rails::Storage.drop_all
     end
   end
@@ -57,7 +60,7 @@ namespace :db do
   task :drop, [:env] => :environment do |t, args|
     args.with_defaults(:env => Rails.env)
 
-    require 'sequel-rails/storage'
+    require 'sequel/rails/storage'
     Sequel::Rails::Storage.new(args.env).drop
 
     if Rails.env.development? && Rails.configuration.database_configuration['test']
@@ -67,7 +70,7 @@ namespace :db do
 
   namespace :migrate do
     task :load => :environment do
-      require 'sequel-rails/migrations'
+      require 'sequel/rails/migrations'
     end
 
     desc  'Rollbacks the database one migration and re migrate up. If you want to rollback more than one step, define STEP=x. Target specific version with VERSION=x.'
@@ -165,3 +168,4 @@ namespace :db do
 end
 
 task 'test:prepare' => 'db:test:prepare'
+

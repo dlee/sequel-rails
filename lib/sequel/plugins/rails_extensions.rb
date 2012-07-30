@@ -1,35 +1,25 @@
-require 'sequel'
 
 module Sequel
   module Plugins
     # The RailsExtensions plugin adds a single class method to Sequel::Model in
-    # order to make its use in controllers a little more like ActiveRecord's.
-    # The +find!+ method is added which will raise an exception if no object is
-    # found. By adding the following code to a Railtie:
+    # order to emulate the behavior of ActiveRecord's `.find` method, where an
+    # exception is raised if a record cannot be found by the given id. Here, we
+    # raise a ModelNotFoundError, which is rescued in controllers like so:
     #
     #   config.action_dispatch.rescue_responses.merge!(
     #    'Sequel::Plugins::RailsExtensions::ModelNotFound' => :not_found
     #   )
-    # 
-    # Usage:
     #
-    #   # Apply plugin to all models:
-    #   Sequel::Model.plugin :rails_extensions
-    #
-    #   # Apply plugin to a single model:
-    #   Album.plugin :rails_extensions
     module RailsExtensions
-      class ModelNotFound < Sequel::Error
-      end
-      
+      class ModelNotFound < Sequel::Error; end
+
       module ClassMethods
         def find!(args)
-          m = self[args]
-          raise ModelNotFound, "Couldn't find #{self} matching #{args}." unless m
-          m
+          record = self[args]
+          raise ModelNotFound, "Couldn't find #{self} matching #{args}." unless record
+          return record
         end
       end
-      
     end
   end
 end

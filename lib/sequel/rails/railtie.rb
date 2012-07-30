@@ -1,92 +1,68 @@
-require 'sequel'
 
-require 'rails'
-require 'active_model/railtie'
-
-# Comment taken from active_record/railtie.rb
-#
-# For now, action_controller must always be present with
-# rails, so let's make sure that it gets required before
-# here. This is needed for correctly setting up the middleware.
-# In the future, this might become an optional require.
-require 'action_controller/railtie'
-
-require 'sequel/rails/setup'
-require 'sequel/rails/railties/log_subscriber'
-require 'sequel/rails/railties/i18n_support'
-
+require File.expand_path('../../rails', __FILE__)
 
 module Sequel
   module Rails
+    require libpath('sequel/rails/railties/i18n_support')
+    require libpath('sequel/rails/railties/controller_runtime')
 
-    class Railtie < Rails::Railtie
+    class Railtie < ::Rails::Railtie
+      config.sequel = Sequel::Rails.configuration
 
-      ::Sequel::Railties::LogSubscriber.attach_to :sequel
+      Sequel::Rails::LogSubscriber.attach_to :sequel
 
       config.app_generators.orm :sequel, :migration => true
-      config.rails_fancy_pants_logging = true
 
       config.action_dispatch.rescue_responses.merge!(
+        # If a record cannot be found within an action (resulting from a call
+        # to #find!, which is a method we patch into Sequel::Model), then rescue
+        # it as a 404
         'Sequel::Plugins::RailsExtensions::ModelNotFound' => :not_found,
+        # If a record fails validation within an action, rescue it as a 500
         'Sequel::ValidationFailed'                        => :unprocessable_entity,
+        # If something bad happens, rescue it as a 500
         'Sequel::NoExistingObject'                        => :unprocessable_entity
       )
 
       rake_tasks do
-        load 'sequel-rails/railties/database.rake'
-      end
-
-      initializer 'sequel.configuration' do |app|
-        configure_sequel(app)
+        load Sequel::Rails.libpath('sequel/rails/railties/database.rake')
       end
 
       initializer 'sequel.logger' do |app|
-        setup_logger(app, Rails.logger)
+        app.config.sequel.logger ||=
+          if defined?(Logging)
+            Logging.logger['Sequel']
+          else
+            ::Rails.logger
+          end
       end
 
       initializer 'sequel.i18n_support' do |app|
-        setup_i18n_support(app)
+        Sequel::Model.class_eval { include Sequel::Rails::Railties::I18nSupport }
       end
 
       # Expose database runtime to controller for logging.
       initializer 'sequel.log_runtime' do |app|
-        setup_controller_runtime(app)
+        ActiveSupport.on_load(:action_controller) do
+          include Sequel::Rails::Railties::ControllerRuntime
+        end
       end
 
       initializer 'sequel.connect' do |app|
-        Sequel::Rails.setup(Rails.env)
+        Sequel::Rails.configuration.init_database(app.config.database_configuration)
+        Sequel::Rails.connect(::Rails.env)
       end
 
       # Run setup code after_initialize to make sure all config/initializers
       # are in effect once we setup the connection. This is especially necessary
       # for the cascaded adapter wrappers that need to be declared before setup.
       config.after_initialize do |app|
-        ::Sequel::Model.plugin :active_model
-        ::Sequel::Model.plugin :validation_helpers
-        ::Sequel::Model.plugin :rails_extensions
-        ::Sequel::Model.raise_on_save_failure = false
+        Sequel::Model.raise_on_save_failure = false
+        Sequel::Model.plugin :active_model
+        Sequel::Model.plugin :validation_helpers
+        # This is our own plugin
+        Sequel::Model.plugin :rails_extensions
       end
-
-      # Support overwriting crucial steps in subclasses
-      def configure_sequel(app)
-        app.config.sequel = Sequel::Rails::Configuration.for(
-          Rails.root, app.config.database_configuration
-        )
-      end
-
-      def setup_i18n_support(app)
-        ::Sequel::Model.send :include, Sequel::Rails::I18nSupport
-      end
-
-      def setup_controller_runtime(app)
-        require 'sequel-rails/railties/controller_runtime'
-        ActionController::Base.send :include, Sequel::Rails::Railties::ControllerRuntime
-      end
-
-      def setup_logger(app, logger)
-        app.config.sequel.logger=logger
-      end
-
     end
 
   end

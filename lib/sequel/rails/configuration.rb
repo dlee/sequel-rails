@@ -1,63 +1,58 @@
-require 'active_support/core_ext/hash/except'
-require 'active_support/core_ext/class/attribute_accessors'
+
+require 'active_support/core_ext/hash/keys'
 
 module Sequel
   module Rails
+    module Configuration
+      class << self
+        attr_accessor :logger
 
-    mattr_accessor :configuration
-
-    class Configuration
-
-      def self.for(root, database_yml_hash)
-        Sequel::Rails.configuration ||= new(root, database_yml_hash)
-      end
-
-      attr_reader :root, :raw
-      attr_accessor :logger
-      attr_accessor :migration_dir
-
-      def environment_for(name)
-        environments[name.to_s] || environments[name.to_sym]
-      end
-
-      def environments
-        @environments ||= @raw.inject({}) do |normalized, environment|
-          name, config = environment.first, environment.last
-          normalized[name] = normalize_repository_config(config)
-          normalized
+        def truncate_sql_to=(len)
+          @sql_truncate_length = len
         end
-      end
+        attr_reader :sql_truncate_length
 
-    private
+        def init_database(db_config)
+          @db_config = db_config
+          @db_environments = db_config.inject({}) { |hash, (name, config)|
+            hash[name.to_sym] = normalize_repository_config(config)
+            hash
+          }
+        end
 
-      def initialize(root, database_yml_hash)
-        @root, @raw = root, database_yml_hash
-      end
+        attr_reader :environments
 
-      def normalize_repository_config(hash)
-        config = {}
-        hash.each do |key, value|
-          config[key.to_s] =
-            if key.to_s == 'port'
-              value.to_i
-            elsif key.to_s == 'adapter' && value == 'sqlite3'
-              'sqlite'
-            elsif key.to_s == 'database' && (hash['adapter'] == 'sqlite3' ||
-                                             hash['adapter'] == 'sqlite'  ||
-                                             hash[:adapter]  == 'sqlite3' ||
-                                             hash[:adapter]  == 'sqlite')
-              value == ':memory:' ? value : File.expand_path((hash['database'] || hash[:database]), root)
-            elsif key.to_s == 'adapter' && value == 'postgresql'
-              'postgres'
+        def db_config_for(name)
+          @db_environments[name.to_sym].merge(:logger => logger)
+        end
+
+      private
+        def normalize_repository_config(hash)
+          hash = hash.stringify_keys
+
+          port = hash.delete('port')
+          adapter = hash.delete('adapter')
+          database = hash.delete('database')
+
+          config = {}
+          config['port'] = port.try(:to_i)
+          config['adapter'] = case adapter
+            when 'sqlite3'    then 'sqlite'
+            when 'postgresql' then 'postgres'
+            else                   adapter
+          end
+          config['database'] =
+            if adapter =~ /^sqlite3?/ and database != ':memory:'
+              File.expand_path(database, ::Rails.root)
             else
-              value
+              database
             end
+
+          config.merge!(hash)
+          config
         end
-
-        config
       end
-
     end
-
   end
 end
+

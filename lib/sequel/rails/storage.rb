@@ -1,3 +1,6 @@
+
+# TODO: Review this class, document
+
 module Sequel
   module Rails
 
@@ -25,7 +28,7 @@ module Sequel
       end
 
       def self.new(config)
-        config = Sequel::Rails.configuration.environments[config.to_s] unless config.kind_of?(Hash)
+        config = Sequel::Rails.configuration.db_config_for(config) unless config.kind_of?(Hash)
 
         klass = lookup_class(config['adapter'])
         if klass.equal?(self)
@@ -39,7 +42,7 @@ module Sequel
       private
 
         def with_local_repositories
-          Sequel::Rails.configuration.environments.each_value do |config|
+          Sequel::Rails.configuration.db_environments.each_value do |config|
             next if config['database'].blank?
             if config['host'].blank? || %w[ 127.0.0.1 localhost ].include?(config['host'])
               yield(config)
@@ -71,7 +74,7 @@ module Sequel
       end
 
       def drop
-        ::Sequel::Model.db.disconnect
+        Sequel::Model.db.disconnect
         _drop
         puts "[sequel] Dropped database '#{database}'"
       end
@@ -107,7 +110,7 @@ module Sequel
       class Sqlite < Storage
         def _create
           return if in_memory?
-          ::Sequel.connect(config.merge('database' => path))
+          Sequel.connect(config.merge('database' => path))
         end
 
         def _drop
@@ -122,7 +125,7 @@ module Sequel
         end
 
         def path
-          @path ||= Pathname(File.expand_path(database, Rails.root))
+          @path ||= Pathname(File.expand_path(database, ::Rails.root))
         end
 
       end
@@ -194,7 +197,7 @@ module Sequel
 
         def _create
           if _is_mysql?
-            ::Sequel.connect("#{_root_url}#{_params}") do |db|
+            Sequel.connect("#{_root_url}#{_params}") do |db|
               db.execute("CREATE DATABASE IF NOT EXISTS `#{db_name}` DEFAULT CHARACTER SET #{charset} DEFAULT COLLATE #{collation}")
             end
           end
@@ -202,7 +205,7 @@ module Sequel
 
         def _drop
           if _is_mysql?
-            ::Sequel.connect("#{_root_url}#{_params}") do |db|
+            Sequel.connect("#{_root_url}#{_params}") do |db|
               db.execute("DROP DATABASE IF EXISTS `#{db_name}`")
             end
           end
