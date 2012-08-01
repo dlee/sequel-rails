@@ -144,7 +144,7 @@ module Sequel
         def execute(statement)
           commands = ["mysql"]
           commands << "--user" << username unless username.blank?
-          commands << "--password" << password unless password.blank?
+          commands << "--password=#{password}" unless password.blank?
           commands << "--host" << host unless host.blank?
           commands << "-e" << statement
           system(*commands)
