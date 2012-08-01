@@ -2,6 +2,9 @@
 # TODO: DRY these up
 # TODO: Add task to create sessions table
 
+######################################################
+# BEWARE: Regular Expressions of DOOOOOOOOOOOOOOOOOM #
+######################################################
 namespace :db do
   namespace :schema do
     desc "Create a db/schema.rb file that can be portably used against any DB supported by Sequel"
@@ -9,7 +12,25 @@ namespace :db do
       Sequel.extension :schema_dumper
       db = Sequel::Rails.db
       File.open(ENV['SCHEMA'] || "#{Rails.root}/db/schema.rb", "w") do |file|
-        file.write db.dump_schema_migration(same_db: true)
+        database = db.dump_schema_migration(same_db: true)
+        # 0. Add schema_migrations info (mucho importante!)
+        filenames = db[:schema_migrations].map{|x| x[:filename]}
+        statements = filenames.map do |f|
+          "self[:schema_migrations].insert(:filename => \"#{f}\")"
+        end
+
+        inserts = statements.map do |s|
+          "    #{s}"
+        end.join("\n")
+
+        database.gsub!(/(create_table\(:schema_migrations\) do.+?end)/m, '\1'+"\n\n#{inserts}\n")
+
+        # 1. Fuck arbitrary whitespaces.
+        database.gsub!(/\s+$/,"\n")
+
+        # 2. Add new line at end of file
+        database += "\n"
+        file.write database
       end
       Rake::Task["db:schema:dump"].reenable
     end
