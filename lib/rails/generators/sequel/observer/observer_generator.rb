@@ -1,8 +1,10 @@
 
-require File.expand_path('../../sequel', __FILE__)
+require File.expand_path('../../../sequel', __FILE__)
 
-module Sequel::Rails::Generators
+module Sequel::Generators
   class ObserverGenerator < Base
+    source_root File.expand_path('../templates', __FILE__)
+
     check_class_collision :suffix => "Observer"
 
     def create_observer_file

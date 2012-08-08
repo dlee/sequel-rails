@@ -1,8 +1,10 @@
 
-require File.expand_path('../../sequel', __FILE__)
+require File.expand_path('../../../sequel', __FILE__)
 
-module Sequel::Rails::Generators
+module Sequel::Generators
   class ModelGenerator < Base
+    source_root File.expand_path('../templates', __FILE__)
+
     argument :attributes, :type => :array, :default => [], :banner => "field:type field:type"
 
     check_class_collision

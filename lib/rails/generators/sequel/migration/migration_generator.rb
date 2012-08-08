@@ -1,8 +1,10 @@
 
-require File.expand_path('../../sequel', __FILE__)
+require File.expand_path('../../../sequel', __FILE__)
 
-module Sequel::Rails::Generators
+module Sequel::Generators
   class MigrationGenerator < Base
+    source_root File.expand_path('../templates', __FILE__)
+
     argument :attributes, :type => :array, :default => [], :banner => "field:type field:type"
     class_option :id, :type => :numeric, :desc => "The id to be used in this migration"
 

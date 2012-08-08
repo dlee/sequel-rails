@@ -1,7 +1,9 @@
 
-module Sequel::Rails
-  module Generators; end
+require File.expand_path('../../../sequel/rails/core', __FILE__)
 
-  require libpath('rails/generators/sequel/base')
-  require libpath('rails/generators/sequel/active_model')
+require Sequel::Rails.libpath('rails/generators/sequel/base')
+require Sequel::Rails.libpath('rails/generators/sequel/active_model')
+
+module Sequel
+  module Generators; end
 end

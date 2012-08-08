@@ -4,14 +4,9 @@
 require 'rails/generators/named_base'
 require 'rails/generators/migration'
 
-module Sequel::Rails::Generators
+module Sequel::Generators
   class Base < ::Rails::Generators::NamedBase
     include ::Rails::Generators::Migration
-
-    def self.source_root
-      @_sequel_source_root ||=
-        File.expand_path("../#{base_name}/#{generator_name}/templates", __FILE__)
-    end
 
     # Implement the required interface for Rails::Generators::Migration.
     #
