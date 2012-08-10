@@ -16,5 +16,4 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency("sequel", ["~> 3.28"])
-  s.add_runtime_dependency("rails", ["~> 3.2.0"])
 end

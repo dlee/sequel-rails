@@ -1,6 +1,13 @@
 
 require File.expand_path('../../rails', __FILE__)
 
+if not defined?(Rails)
+  raise "Rails must be loaded before Sequel::Rails::Railtie is loaded"
+end
+if Rails.version < 3
+  raise "sequel-rails requires Rails >= 3"
+end
+
 module Sequel
   module Rails
     require libpath('sequel/rails/railties/i18n_support')
