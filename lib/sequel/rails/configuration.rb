@@ -5,7 +5,7 @@ module Sequel
   module Rails
     module Configuration
       class << self
-        attr_accessor :logger
+        attr_accessor :logger, :db_environments
 
         def truncate_sql_to=(len)
           @sql_truncate_length = len
@@ -19,8 +19,6 @@ module Sequel
             hash
           }
         end
-
-        attr_reader :environments
 
         def db_config_for(name)
           @db_environments[name.to_sym].merge(:logger => logger)
