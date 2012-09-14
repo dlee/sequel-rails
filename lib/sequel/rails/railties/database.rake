@@ -42,6 +42,7 @@ namespace :db do
 
       file = ENV['SCHEMA'] || "#{Rails.root}/db/schema.rb"
       if File.exists?(file)
+        require 'sequel/extensions/migration'
         load(file)
         Sequel::Migration.descendants.first.apply(::Sequel::Model.db, :up)
       else
