@@ -37,11 +37,9 @@ namespace :db do
 
     desc "Load a schema.rb file into the database"
     task :load => :environment do
-      require 'sequel/rails/storage'
-      Sequel::Rails::Storage.new(Rails.env).create
-
       file = ENV['SCHEMA'] || "#{Rails.root}/db/schema.rb"
       if File.exists?(file)
+        require 'sequel/extensions/migration'
         load(file)
         Sequel::Migration.descendants.first.apply(::Sequel::Model.db, :up)
       else
@@ -58,16 +56,12 @@ namespace :db do
     end
   end
 
-  desc "Create the database defined in config/database.yml for the current Rails.env - also creates the test database if Rails.env.development?"
+  desc "Create the database defined in config/database.yml for the current Rails.env"
   task :create, [:env] => :environment do |t, args|
     args.with_defaults(:env => Rails.env)
 
     require 'sequel/rails/storage'
     Sequel::Rails::Storage.new(args.env).create
-
-    if Rails.env.development? && Rails.configuration.database_configuration['test']
-      Sequel::Rails::Storage.new('test').create
-    end
   end
 
   namespace :drop do
@@ -78,16 +72,12 @@ namespace :db do
     end
   end
 
-  desc "Create the database defined in config/database.yml for the current Rails.env - also creates the test database if Rails.env.development?"
+  desc "Create the database defined in config/database.yml for the current Rails.env"
   task :drop, [:env] => :environment do |t, args|
     args.with_defaults(:env => Rails.env)
 
     require 'sequel/rails/storage'
     Sequel::Rails::Storage.new(args.env).drop
-
-    if Rails.env.development? && Rails.configuration.database_configuration['test']
-      Sequel::Rails::Storage.new('test').drop
-    end
   end
 
   namespace :migrate do
@@ -181,7 +171,9 @@ namespace :db do
     task :prepare do
       Rails.env = 'test'
       Rake::Task['db:force_close_open_connections'].invoke()
-      Rake::Task['db:reset'].invoke()
+      Rake::Task['db:drop'].invoke()
+      Rake::Task['db:create'].invoke()
+      Rake::Task['db:schema:load'].invoke()
       Sequel::DATABASES.each do |db|
         db.disconnect
       end
