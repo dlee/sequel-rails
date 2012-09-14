@@ -1,6 +1,6 @@
 module Sequel
   module Rails
-    VERSION = '0.3.6'
+    VERSION = '0.3.7'
     def self.version; VERSION; end
   end
 end
