@@ -182,7 +182,9 @@ namespace :db do
     task :prepare do
       Rails.env = 'test'
       Rake::Task['db:force_close_open_connections'].invoke()
-      Rake::Task['db:reset'].invoke()
+      Rake::Task['db:drop'].invoke()
+      Rake::Task['db:create'].invoke()
+      Rake::Task['db:schema:load'].invoke()
       Sequel::DATABASES.each do |db|
         db.disconnect
       end
