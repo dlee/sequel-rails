@@ -15,7 +15,7 @@ namespace :db do
         database = db.dump_schema_migration(same_db: true)
         # 0. Add schema_migrations info (mucho importante!)
         filenames = db[:schema_migrations].map{|x| x[:filename]}
-        statements = filenames.map do |f|
+        statements = filenames.sort.map do |f|
           "self[:schema_migrations].insert(:filename => \"#{f}\")"
         end
 
