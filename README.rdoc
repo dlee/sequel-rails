@@ -12,7 +12,7 @@ Using sequel with rails3 requires a couple minor changes.
 
 First, add the following to your Gemfile:
 
-  gem 'talentbox-sequel-rails'
+  gem 'nulogy-sequel-rails'
   
 ... be sure to run "bundle install" if needed!
 
@@ -22,9 +22,9 @@ Secondly, you'll need to require "sequel-rails/railtie" in your config/applicati
   
   # Instead of 'rails/all', require these:
   require "action_controller/railtie"
-  require "sequel-rails/railtie"
+  require "sequel/rails/railtie"
   require "action_mailer/railtie"
-
+  require "action_view/railtie"
 
 After those changes, you should be good to go!
 
@@ -52,50 +52,34 @@ Once you do that, you will see the following rake tasks among others. These are 
   ...
 
 
-== Current Issues
-
-* There are bound to be a lot, but I'm not yet sure what they are
-
 == TODO (not necessarily in that order)
 
 * SPECS
 * README changes
 * Publish SQL issued by sequel to rails subscribers
 
-== Credits
-
-The {dm-rails}[http://github.com/datamapper/dm-rails] team wrote most of this code, I just sequel-ized it.
-
-
-
 == Note on Patches/Pull Requests
 
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
+* Add tests for it so that future versions don't break it.
 * Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+* Send  a pull request. Bonus points for topic branches.
 
-
-== The sequel-rails team
+== sequel-rails contributors
 
 {Original project}[https://github.com/brasten/sequel-rails]:
 
 * Brasten Sager (brasten)
 
-This fork:
+fork history:
 
-* Jonathan Tron (JonathanTron)
+* {TalentBox}[https://github.com/TalentBox/sequel-rails]
+* {mcmire}[https://github.com/mcmire/sequel-rails]
 
-== Contributors
+current fork:
 
-Improvements has been made by those awesome contributors:
-
-* Benjamin Atkin (benatkin)
-* Gabor Ratky (rgabo)
-* Joshua Hansen (binarypaladin)
+* {nulogy}[https://github.com/nulogy/sequel-rails]
 
 == Copyright
 
